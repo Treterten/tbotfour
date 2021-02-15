@@ -1,0 +1,23 @@
+{
+  "name": "tbotfour",
+  "version": "1.0.0",
+  "description": "Study discord bot meant to enforce productivity rules and help with study streams",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Treterten/tbotfour.git"
+  },
+  "keywords": [
+    "Discord",
+    "Bot"
+  ],
+  "author": "Tre Moore",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Treterten/tbotfour/issues"
+  },
+  "homepage": "https://github.com/Treterten/tbotfour#readme"
+}
