@@ -1,4 +1,6 @@
+/* eslint-disable no-console */
 // const Command = require('./models/command.js');
+const StudyUser = require('./models/studyUser.js');
 
 module.exports.ping = (client, message) => {
   message.reply('pong');
@@ -73,8 +75,50 @@ module.exports.study = (client, message) => {
   }
 };
 
+module.exports.shame = (client, message) => {
+  const user = message.mentions.users.first();
+  const channel = client.channels.cache.get(message.channel.id);
+  const reason = message.content.substring(message.content.indexOf('>') + 1).trim();
+  if (reason.length > 0) {
+    StudyUser.findOne({ id: user.id }, (err, studyUser) => {
+      if (studyUser) {
+        StudyUser.updateOne({ id: user.id }, { shames: studyUser.shames + 1 },
+          (error) => {
+            if (error) {
+              console.error(error);
+            } else {
+              channel.send(`Shame on ${user} for ${reason} instead of working. They now have ${studyUser.shames + 1} shames.`);
+            }
+          });
+      } else {
+        StudyUser.create({ id: user.id, shames: 1 })
+          .then(() => channel.send(`Shame on ${user} for ${reason} instead of working. This is their first shame.`))
+          .catch((e) => console.error(e));
+      }
+    });
+  } else {
+    message.reply('You did not specify a reason.');
+  }
+};
+
+module.exports.commands = (client, message) => {
+  const channel = client.channels.cache.get(message.channel.id);
+  channel.send(`
+\`\`\`
+PREFIX: '!'
+unmuteAll: Unmutes (server unmute) everyone in the voice channel
+muteAll: Server mutes everyone in the voice channel
+ping: pong
+join: Joins the voice channel you're in
+leave: Leaves the voice channel
+study [time to study, in minutes]: Joins the voice channel, and mutes everyone for x amount of minutes, then unmutes everyone once the study session is up
+shame [@user] [reason (optional)]: Shame someone for not studying and/or violating study stream rules. Shows their current shames and adds to them.
+\`\`\``);
+};
+
 module.exports.join.bind(module.exports);
 module.exports.leave.bind(module.exports);
 module.exports.muteAll.bind(module.exports);
 module.exports.unmuteAll.bind(module.exports);
 module.exports.study.bind(module.exports);
+module.exports.commands.bind(module.exports);
