@@ -95,7 +95,7 @@ module.exports.shame = (client, message) => {
         studyUser.save();
         channel.send(`Shame on ${user} for ${reason} instead of working. Current number of shames: ${studyUser.shames.length + 1}`);
       } else {
-        StudyUser.create({ id: user.id, $push: { description: reason } })
+        StudyUser.create({ id: user.id, shames: [{ description: reason }] })
           .then(() => channel.send(`Shame on ${user} for ${reason} instead of working. This is their first shame.`))
           .catch((e) => console.error(e));
       }
