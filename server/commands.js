@@ -82,16 +82,20 @@ module.exports.shame = (client, message) => {
   if (reason.length > 0) {
     StudyUser.findOne({ id: user.id }, (err, studyUser) => {
       if (studyUser) {
-        StudyUser.updateOne({ id: user.id }, { shames: studyUser.shames + 1 },
-          (error) => {
-            if (error) {
-              console.error(error);
-            } else {
-              channel.send(`Shame on ${user} for ${reason} instead of working. They now have ${studyUser.shames + 1} shames.`);
-            }
-          });
+        // StudyUser.updateOne({ id: user.id }, { shames: studyUser.shames + 1 },
+        //   (error) => {
+        //     if (error) {
+        //       console.error(error);
+        //     } else {
+        //       channel.send(`Shame on ${user} for ${reason} instead of working.
+        //       They now have ${studyUser.shames + 1} shames.`);
+        //     }
+        //   });
+        studyUser.shames.push({ description: reason });
+        studyUser.save();
+        channel.send(`Shame on ${user} for ${reason} instead of working. Current number of shames: ${studyUser.shames.length + 1}`);
       } else {
-        StudyUser.create({ id: user.id, shames: 1 })
+        StudyUser.create({ id: user.id, $push: { description: reason } })
           .then(() => channel.send(`Shame on ${user} for ${reason} instead of working. This is their first shame.`))
           .catch((e) => console.error(e));
       }
@@ -99,6 +103,24 @@ module.exports.shame = (client, message) => {
   } else {
     message.reply('You did not specify a reason.');
   }
+};
+
+module.exports.shameList = (client, message) => {
+  const user = message.author;
+  const channel = client.channels.cache.get(message.channel.id);
+  console.log(client.user.id);
+  StudyUser.findOne({ id: user.id }, (err, studyUser) => {
+    if (studyUser) {
+      let messageBack = '```# | Reason\n--------------\n';
+      for (let i = 0; i < studyUser.shames.length; i += 1) {
+        messageBack += `${i} | ${studyUser.shames[i].description}\n`;
+      }
+      messageBack += '```';
+      channel.send(messageBack);
+    } else {
+      message.reply('You have no shames. Cheers!');
+    }
+  });
 };
 
 module.exports.commands = (client, message) => {
